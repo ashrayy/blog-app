@@ -13,7 +13,7 @@ public class PostRequestDTO {
     private String content;
     private Integer user_id;
     private Integer category_id;
-    //    private String imageName = "default.png";
+    private String imageName;
 
 
 }

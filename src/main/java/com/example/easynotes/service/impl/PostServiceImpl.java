@@ -65,7 +65,7 @@ public class PostServiceImpl implements PostService {
         Post post = this.postRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Post","Post-id",id));
         User user = this.userRepo.findById(postRequestDTO.getUser_id()).orElseThrow(()-> new ResourceNotFoundException("Post","Post-id",id));;
         Category category = this.categoryRepo.findById(postRequestDTO.getCategory_id()).orElseThrow(()-> new ResourceNotFoundException("Post","Post-id",id));
-        post.setImageName("default.png");
+        post.setImageName(postRequestDTO.getImageName());
         post.setUser(user);
         post.setCategory(category);
         post.setTitle(postRequestDTO.getTitle());
