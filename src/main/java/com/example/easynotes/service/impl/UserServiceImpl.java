@@ -1,14 +1,20 @@
 package com.example.easynotes.service.impl;
 
+import com.example.easynotes.config.AppConstants;
 import com.example.easynotes.exception.ResourceNotFoundException;
+import com.example.easynotes.model.Role;
 import com.example.easynotes.model.User;
 import com.example.easynotes.payload.UserDTO;
+import com.example.easynotes.repository.CommentRepo;
+import com.example.easynotes.repository.RoleRepo;
 import com.example.easynotes.repository.UserRepo;
 import com.example.easynotes.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,9 +27,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    CommentRepo commentRepo;
+
+    @Autowired
+    RoleRepo roleRepo;
+
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         User user = this.dtoToUser(userDTO);
+
+        // set roles
+        Role role =this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+        user.getRoles().add(role);
         User savedtoUser = this.userRepo.save(user);
         return this.userToDto(savedtoUser);
     }
@@ -56,12 +75,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Integer id) {
         User user = this.userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User","id",id));
+//        this.commentRepo.findByUser(user).forEach(val->this.commentRepo.deleteById(val.getId()));
         this.userRepo.deleteById(id);
     }
 
     private User dtoToUser(UserDTO userDTO){
+        userDTO.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
         User user = this.modelMapper.map(userDTO,User.class);
 //        user.setId(userDTO.getId());
 //        user.setName(userDTO.getName());

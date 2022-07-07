@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> resourceNotFoundExceptionHandler(ResourceNotFoundException ex){
        String message = ex.getMessage();
-       ApiResponse apiResponse = new ApiResponse(message,false);
+       ApiResponse apiResponse = new ApiResponse(message,String.valueOf(HttpStatus.BAD_REQUEST.value()));
        return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.NOT_FOUND);
     }
 
@@ -33,10 +33,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<Map<String,String>>(hmap,HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse> badCredentialExceptionHandler(BadCredentialsException exp){
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiResponse> handleApiException(ApiException exp){
         String message = exp.getMessage();
-        ApiResponse apiResponse = new ApiResponse(message,false);
+        ApiResponse apiResponse = new ApiResponse(message,String.valueOf(HttpStatus.BAD_REQUEST.value()));
         return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.BAD_REQUEST);
     }
 

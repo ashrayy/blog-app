@@ -7,9 +7,11 @@ import com.example.easynotes.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -32,8 +34,14 @@ public class UserController {
     }
 
     @DeleteMapping("/deleteUser/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleterUser(@PathVariable Integer id){
          this.userService.deleteUser(id);
-         return new ResponseEntity<>(new ApiResponse("User with id -" + id + " deleted successfully", true),HttpStatus.OK);
+         return new ResponseEntity<>(new ApiResponse("User with id -" + id + " deleted successfully", String.valueOf(HttpStatus.OK.value())),HttpStatus.OK);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<UserDTO>> getAllUsers(){
+        return new ResponseEntity<List<UserDTO>>(this.userService.getUserList(),HttpStatus.OK);
     }
 }
