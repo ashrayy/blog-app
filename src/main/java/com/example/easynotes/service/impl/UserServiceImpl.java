@@ -36,15 +36,17 @@ public class UserServiceImpl implements UserService {
     @Autowired
     RoleRepo roleRepo;
 
+
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        User user = this.dtoToUser(userDTO);
+        userDTO.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
+        User user = this.modelMapper.map(userDTO,User.class);
 
         // set roles
-        Role role =this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+        Role role =this.roleRepo.getById(AppConstants.NORMAL_USER);
         user.getRoles().add(role);
         User savedtoUser = this.userRepo.save(user);
-        return this.userToDto(savedtoUser);
+        return this.modelMapper.map(savedtoUser,UserDTO.class);
     }
 
     @Override
@@ -57,49 +59,31 @@ public class UserServiceImpl implements UserService {
      user.setEmail(userDto.getEmail());
      user.setAbout(userDto.getAbout());
      User updatedUser = this.userRepo.save(user);
-     return userToDto(updatedUser);
+     return this.modelMapper.map(updatedUser,UserDTO.class);
     }
 
     @Override
     public UserDTO getUserById(Integer id) {
-
         User user = this.userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User","id",id));
-        return this.userToDto(user);
+        return this.modelMapper.map(user,UserDTO.class);
     }
 
     @Override
     public List<UserDTO> getUserList() {
         List<User> users = this.userRepo.findAll();
-        List<UserDTO> userDTOList =users.stream().map(user -> this.userToDto(user)).collect(Collectors.toList());
+        List<UserDTO> userDTOList =users.stream().map(user -> this.modelMapper.map(user,UserDTO.class)).collect(Collectors.toList());
         return userDTOList;
     }
 
     @Override
     @Transactional
     public void deleteUser(Integer id) {
-        User user = this.userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User","id",id));
+        User user = this.userRepo.getById(id);
+        if(user == null){
+            throw new ResourceNotFoundException("User","id",id);
+        }
 //        this.commentRepo.findByUser(user).forEach(val->this.commentRepo.deleteById(val.getId()));
         this.userRepo.deleteById(id);
     }
 
-    private User dtoToUser(UserDTO userDTO){
-        userDTO.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
-        User user = this.modelMapper.map(userDTO,User.class);
-//        user.setId(userDTO.getId());
-//        user.setName(userDTO.getName());
-//        user.setAbout(userDTO.getAbout());
-//        user.setEmail(userDTO.getEmail());
-//        user.setPassword(userDTO.getPassword());
-        return user;
-    }
-
-    public UserDTO userToDto(User user){
-        UserDTO userDTO = this.modelMapper.map(user,UserDTO.class);
-//        userDTO.setId(user.getId());
-//        userDTO.setName(user.getName());
-//        userDTO.setAbout(user.getAbout());
-//        userDTO.setEmail(user.getEmail());
-//        userDTO.setPassword(user.getPassword());
-        return userDTO;
-    }
 }
