@@ -9,6 +9,7 @@ import com.example.blogapp.model.User;
 import com.example.blogapp.repository.CommentRepo;
 import com.example.blogapp.repository.RoleRepo;
 import com.example.blogapp.repository.UserRepo;
+import com.example.blogapp.util.ModelTransformer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,9 +26,6 @@ public class UserServiceImpl implements UserService {
     private UserRepo userRepo;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -35,18 +33,21 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RoleRepo roleRepo;
+    
+    @Autowired
+    ModelTransformer modelTransformer;
 
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         userDTO.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
-        User user = this.modelMapper.map(userDTO,User.class);
+        User user = modelTransformer.transformValues(userDTO,User.class);
 
         // set roles
         Role role =this.roleRepo.getById(AppConstants.NORMAL_USER);
         user.getRoles().add(role);
         User savedtoUser = this.userRepo.save(user);
-        return this.modelMapper.map(savedtoUser,UserDTO.class);
+        return modelTransformer.transformValues(savedtoUser,UserDTO.class);
     }
 
     @Override
@@ -59,19 +60,19 @@ public class UserServiceImpl implements UserService {
      user.setEmail(userDto.getEmail());
      user.setAbout(userDto.getAbout());
      User updatedUser = this.userRepo.save(user);
-     return this.modelMapper.map(updatedUser,UserDTO.class);
+     return modelTransformer.transformValues(updatedUser,UserDTO.class);
     }
 
     @Override
     public UserDTO getUserById(Integer id) {
         User user = this.userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User","id",id));
-        return this.modelMapper.map(user,UserDTO.class);
+        return modelTransformer.transformValues(user,UserDTO.class);
     }
 
     @Override
     public List<UserDTO> getUserList() {
         List<User> users = this.userRepo.findAll();
-        List<UserDTO> userDTOList =users.stream().map(user -> this.modelMapper.map(user,UserDTO.class)).collect(Collectors.toList());
+        List<UserDTO> userDTOList =users.stream().map(user -> modelTransformer.transformValues(user,UserDTO.class)).collect(Collectors.toList());
         return userDTOList;
     }
 
