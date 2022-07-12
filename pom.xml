@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.example</groupId>
-	<artifactId>easy-notes</artifactId>
+	<artifactId>blogapp</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>easy-notes</name>
-	<description>Rest API for a Simple Note Taking Application</description>
+	<name>blogapp</name>
+	<description>Rest API for a blog Application</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
